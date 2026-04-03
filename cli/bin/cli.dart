@@ -1,5 +1,3 @@
-import 'package:cli/main.dart' as m;
+import 'package:localsend_cli/main.dart' as cli;
 
-Future<void> main(List<String> arguments) async {
-  await m.main(arguments);
-}
+void main(List<String> args) => cli.main(args);

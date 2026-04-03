@@ -1,0 +1,27 @@
+#compdef localsend
+
+local -a devices
+devices=($(localsend --list-devices 2>/dev/null | grep ':' | while read line; do
+  name=${line%%:*}
+  ip=${line#*:}
+  echo "$name:$ip"
+done))
+
+_arguments \
+  '-h[Show help]' \
+  '--help[Show help]' \
+  '-r[Receive files]:*:file:_files' \
+  '--receive[Receive files]' \
+  '-d[Run as daemon]' \
+  '--daemon[Run as daemon]' \
+  '-a[Auto-receive without confirmation]' \
+  '--auto[Auto-receive without confirmation]' \
+  '-o+[Output directory]:output directory:_files -/' \
+  '--output=[Output directory]:output directory:_files -/' \
+  '-p+[Port number]:port number:' \
+  '--port=[Port number]:port number:' \
+  '-a+[Device alias]:alias:' \
+  '--alias=[Device alias]:alias:' \
+  '1:command:(list send info receive)' \
+  '2:device:($devices)' \
+  '*:file:_files'

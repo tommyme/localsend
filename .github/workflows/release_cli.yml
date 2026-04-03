@@ -1,0 +1,67 @@
+name: Release CLI
+
+on:
+  push:
+    tags:
+      - 'cli-v*'
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: macos-latest
+            arch: arm64
+            artifact: localsend_macos_arm64
+            ext: ""
+          - os: macos-latest
+            arch: x64
+            artifact: localsend_macos_x86_64
+            ext: ""
+          - os: ubuntu-latest
+            arch: x64
+            artifact: localsend_linux_x64
+            ext: ""
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Dart
+        uses: dart-lang/setup-dart@v1
+
+      - name: Install dependencies
+        run: |
+          cd cli
+          dart pub get
+
+      - name: Build CLI
+        run: |
+          cd cli
+          dart compile exe bin/cli.dart -o ../build/${{ matrix.artifact }}
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: build/${{ matrix.artifact }}
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: CLI ${{ github.ref_name }}
+          draft: true
+          files: |
+            artifacts/*/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
