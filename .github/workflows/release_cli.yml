@@ -37,6 +37,7 @@ jobs:
 
       - name: Build CLI
         run: |
+          mkdir -p build
           cd cli
           dart compile exe bin/cli.dart -o ../build/${{ matrix.artifact }}
 
